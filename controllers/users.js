@@ -59,7 +59,7 @@ const getUsers = async (db) => {
 
 	for (var i =0;i<users.length;i++) {
 		/* User must be online within last 5 minutes */
-		if ((timeNow - ((60*1000) * 1000)) <= parseInt(users[i].lastseen)) {
+		if ((timeNow - ((60*5) * 1000)) <= parseInt(users[i].lastseen)) {
 			const user = await db.select('*').from('usersct').where('email','=', users[i].email);
 			userInfo = {
 				first : user[0].first,

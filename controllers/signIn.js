@@ -20,17 +20,19 @@ const handleSignIn = (req, res, db, bcrypt) => {
 			
 			/* On hash match, return the user object from user table */
 			if (isValid) {
+				updateLastSeen(db, email).then(resp => {
+					db.select('*').from('usersct')
+					.where('email','=',email)
+					.then(user => {
+						if (data[0]) {
+							return res.send(JSON.stringify({ code: 'SIGN_IN_SUCCESS', first : user[0].first, last : user[0].last, email : user[0].email }));
+						}
+					})
+					.catch(err => {
+						return res.send('FETCH_FAILED');
+					})
+				})
 
-				return db.select('*').from('usersct')
-				.where('email','=',email)
-				.then(user => {
-					if (data[0]) {
-						return res.send(JSON.stringify({ code: 'SIGN_IN_SUCCESS', first : user[0].first, last : user[0].last, email : user[0].email }));
-					}
-				})
-				.catch(err => {
-					return res.send('FETCH_FAILED');
-				})
 			}
 			/* On password mismatch, send the error code to the front-end */
 			else {
@@ -52,9 +54,12 @@ const handleSignIn = (req, res, db, bcrypt) => {
 }
 
 
-const updateLastSeen = (db) => {
+const updateLastSeen = async (db, email) => {
 
-	
+	const timeNow = (new Date).getTime().toString();
+
+	const updated = await db('loginct').update({ lastseen : timeNow }).where('email','=',email);
+
 }
 
 
