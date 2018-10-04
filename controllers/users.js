@@ -88,6 +88,7 @@ const getAllUsers = async (db, email) => {
 		userInfo = {
 				first : user[0].first,
 				last : user[0].last,
+				email : user[0].email,
 				lastSeen : users[i].lastseen
 			}
 		onlineUsers.push(userInfo);
