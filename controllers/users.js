@@ -21,7 +21,7 @@ const handleGetList = (req, res, db, bcrypt) => {
 			if (isValid) {
 
 				/* Return the users who have been online */
-				getUsers(db)
+				getUsers(db, email)
 				.then(onlineUsers => {
 					return res.send(JSON.stringify({ code: 'API_SUCCESS', users : onlineUsers }));	
 				});
@@ -46,7 +46,7 @@ const handleGetList = (req, res, db, bcrypt) => {
 
 }
 
-const getUsers = async (db) => {
+const getUsers = async (db, email) => {
 
 	/* Get time now and return all users who have pinged the server within the last 5 minutes */
 	const timeNow = (new Date).getTime();
@@ -55,7 +55,7 @@ const getUsers = async (db) => {
 	let onlineUsers = [];
 
 	/* Get all the users from the database to compare their login times */
-	const users = await db.select('*').from('loginct');
+	const users = await db.select('*').from('loginct').where('email','!=',email);
 
 	for (var i =0;i<users.length;i++) {
 		/* User must be online within last 5 minutes */
@@ -73,7 +73,7 @@ const getUsers = async (db) => {
 
 }
 
-const getAllUsers = async (db) => {
+const getAllUsers = async (db, email) => {
 
 	/* Get time now and return all users who have pinged the server within the last 5 minutes */
 	const timeNow = (new Date).getTime();
@@ -81,7 +81,7 @@ const getAllUsers = async (db) => {
 	/* Initial array of online users */
 	let onlineUsers = [];
 
-	const users = await db.select('*').from('loginct');
+	const users = await db.select('*').from('loginct').where('email','!=',email);
 
 	for (var i =0;i<users.length;i++) {
 		const user = await db.select('*').from('usersct').where('email','=', users[i].email);
