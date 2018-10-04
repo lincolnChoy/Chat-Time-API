@@ -8,19 +8,20 @@ const handleSignIn = (req, res, db, bcrypt) => {
 	}
 
  	/* Grab hash from login table of requested login email */
-	db.select('email','hash').from('loginCT')
+	db.select('email','hash').from('loginct')
 	.where('email','=', email)
 	.then(data => {
 
 		/* Make sure that this email exists */
 		if (data != "") {
+
 			/* Use synchronous hash compare */
 			const isValid = bcrypt.compareSync(pw,data[0].hash);
 			
 			/* On hash match, return the user object from user table */
 			if (isValid) {
 
-				return db.select('*').from('usersCT')
+				return db.select('*').from('usersct')
 				.where('email','=',email)
 				.then(user => {
 					if (data[0]) {
@@ -50,6 +51,11 @@ const handleSignIn = (req, res, db, bcrypt) => {
 
 }
 
+
+const updateLastSeen = (db) => {
+
+	
+}
 
 
 module.exports = {

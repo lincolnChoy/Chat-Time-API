@@ -11,7 +11,7 @@ const handleRegister = (req, res, db, bcrypt) => {
 		return res.status(400).json('NOT_COMPLETE');
 	}
 
-	db.select('email').from('usersCT')
+	db.select('email').from('usersct')
 	.where('email','=', email)
 	.then(data => {
 		
@@ -27,16 +27,20 @@ const handleRegister = (req, res, db, bcrypt) => {
 
 			/* Transaction for consistency */
 			db.transaction(trx => {
+
+				const lastSeen = ((new Date).getTime()).toString();
+				
 				/* First insert into login table */
 				trx.insert({
 					hash : hash,
-					email : email
+					email : email,
+					lastseen : lastSeen
 				})
-				.into('loginCT')
+				.into('loginct')
 				/* Get email from login table if insertion was successful and add this to the users table */
 				.returning('email')
 				.then(loginEmail => {
-					return trx('usersCT')
+					return trx('usersct')
 					.returning('*')
 					.insert({ 
 						email : loginEmail[0],
@@ -54,7 +58,7 @@ const handleRegister = (req, res, db, bcrypt) => {
 				.catch(trx.rollback)
 			})
 			/* Return 400 if failed */
-			.catch(err => res.status(400).json('REGISTRATION_FAILED'));	
+			.catch(err => res.status(400).json(err));	
 		}
 	});
 

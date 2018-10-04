@@ -6,6 +6,7 @@ const cors = require('cors');
 
 const signIn = require('./controllers/signIn');
 const register = require('./controllers/register');
+const users = require('./controllers/users');
 
 /* Set up database using knex module */
 const db = knex({
@@ -15,7 +16,7 @@ const db = knex({
 		user : 'postgres',
 		password : '',
 		database : 'chat_time',
-	}
+	}	
 });
 
 const app = express();
@@ -31,6 +32,8 @@ app.get('/', (req,res) => { res.send('Server is up'); });
 app.post('/register', (req,res) => { register.handleRegister(req, res, db, bcrypt) });
 
 app.post('/signIn', (req,res) => { signIn.handleSignIn(req, res, db, bcrypt) });
+
+app.post('/getList', (req,res) => { users.handleGetList(req, res, db, bcrypt)});
 
 
 app.listen(process.env.PORT || 3000, () => {
