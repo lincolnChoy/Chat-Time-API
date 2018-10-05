@@ -37,19 +37,25 @@ const handleRegister = (req, res, db, bcrypt) => {
 					lastseen : lastSeen
 				})
 				.into('loginct')
-				/* Get email from login table if insertion was successful and add this to the users table */
-				.returning('email')
-				.then(loginEmail => {
-					return trx('usersct')
+				.returning('id')
+				.then(id => {
+					return trx('profilect')
 					.returning('*')
-					.insert({ 
-						email : loginEmail[0],
-						first : first,
-						last : last
+					.insert({
+						id : id[0]
 					})
-					/* On successful API call, return the user object to the front-end */
 					.then(user => {
-						res.json({ code : 'REGISTRATION_SUCCESS', first : first, last : last, email : email });
+						return trx('usersct')
+						.returning('*')
+						.insert({
+							email : email,
+							first : first,
+							last : last
+						})
+						/* On successful API call, return the user object to the front-end */
+						.then(user => {
+							return res.json({ code : 'REGISTRATION_SUCCESS', first : user[0].first, last : user[0].last, id : user[0].id });
+						});
 					})
 				})
 				/* Commit changes */

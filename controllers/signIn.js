@@ -25,7 +25,7 @@ const handleSignIn = (req, res, db, bcrypt) => {
 					.where('email','=',email)
 					.then(user => {
 						if (data[0]) {
-							return res.send(JSON.stringify({ code: 'SIGN_IN_SUCCESS', first : user[0].first, last : user[0].last, email : user[0].email }));
+							return res.send(JSON.stringify({ code: 'SIGN_IN_SUCCESS', first : user[0].first, last : user[0].last, id : user[0].id }));
 						}
 					})
 					.catch(err => {
