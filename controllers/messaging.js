@@ -108,7 +108,7 @@ const handleGetMessages = (req, res, db, bcrypt) => {
 					this.where('sender', destination).andWhere('destination', sender)
 				})
 				.then(messages => {
-					return res.status(200).json({ messages : messages });
+					return res.status(200).json({ code : '0' , messages : messages });
 				})
 			}
 			/* If pw is wrong */
