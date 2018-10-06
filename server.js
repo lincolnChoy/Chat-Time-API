@@ -13,10 +13,11 @@ const profiles = require('./controllers/profiles');
 const db = knex({
 	client : 'pg',
 	connection : {
-		connectionString : process.env.DATABASE_URL,
-		ssl : true,
-
-	}
+		host : '127.0.0.1',
+		user : 'postgres',
+		password : '',
+		database : 'chat_time',
+	}	
 });
 
 const app = express();
@@ -36,6 +37,8 @@ app.post('/signIn', (req,res) => { signIn.handleSignIn(req, res, db, bcrypt) });
 app.post('/getList', (req,res) => { users.handleGetList(req, res, db, bcrypt)});
 
 app.get('/getProfile', (req, res) => { profiles.handleGetProfile(req, res, db, bcrypt)});
+
+app.post('/saveProfile', (req,res) => { profiles.handleSaveProfile(req, res, db, bcrypt)});
 
 
 app.listen(process.env.PORT || 3000, () => {
