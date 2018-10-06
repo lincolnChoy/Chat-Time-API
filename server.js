@@ -43,6 +43,8 @@ app.post('/saveProfile', (req,res) => { profiles.handleSaveProfile(req, res, db,
 
 app.post('/sendMessage', (req,res) => { messaging.handleSendMessage(req, res, db, bcrypt)});
 
+app.post('/getMessages', (req,res) => { messaging.handleGetMessages(req, res, db, bcrypt)});
+
 
 app.listen(process.env.PORT || 3000, () => {
 	console.log('Server started');
