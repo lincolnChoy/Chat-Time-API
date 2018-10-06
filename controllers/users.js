@@ -4,7 +4,7 @@ const handleGetList = (req, res, db, bcrypt) => {
 	const { id, pw } = req.body;
 
 	if (!(id && pw)) {
-		return res.json(400).json('NOT_COMPLETE');
+		return res.status(400).json({ code : '3'});
 	}
 
  	/* Grab hash from login table of requested login email */
@@ -23,24 +23,24 @@ const handleGetList = (req, res, db, bcrypt) => {
 				/* Return the users who have been online */
 				getUsers(db, id)
 				.then(onlineUsers => {
-					return res.send(JSON.stringify({ code: 'API_SUCCESS', users : onlineUsers }));	
+					return res.status(200).json({ code: '0', users : onlineUsers });	
 				});
 
 			}
 			/* On password mismatch, send the error code to the front-end */
 			else {
-				return res.send(JSON.stringify({ code : 'WRONG_CRED' }));
+				return res.status(200).json({ code : '1' });
 			}
 		}
 		/* If email does not exist */
 		else {
-			return res.send(JSON.stringify({ code : 'WRONG_CRED' }));
+			return res.status(200).json({ code : '2' });
 		}
 
 	})
 	/* On db failure, send error code */
 	.catch(err => {
-		return res.send(JSON.stringify({ code : 'API_FAIL' }));
+		return res.status(500).json({ code : '5' });
 	})
 
 

@@ -8,7 +8,7 @@ const handleRegister = (req, res, db, bcrypt) => {
 
 	if (!email || !first || !last || !pw) {
 
-		return res.status(400).json('NOT_COMPLETE');
+		return res.status(400).json({ code : '3' });
 	}
 
 	db.select('email').from('usersct')
@@ -18,7 +18,7 @@ const handleRegister = (req, res, db, bcrypt) => {
 		/* If the email already exists, send error code back to front-end */
 		if (data != "") {
 			if (data[0].email) {
-				return res.send(JSON.stringify({ code : 'EXISTING_EMAIL' }));
+				return res.send({ code : '6' });
 			}
 		}
 		else {
@@ -54,7 +54,7 @@ const handleRegister = (req, res, db, bcrypt) => {
 						})
 						/* On successful API call, return the user object to the front-end */
 						.then(user => {
-							return res.json({ code : 'REGISTRATION_SUCCESS', first : user[0].first, last : user[0].last, id : user[0].id });
+							return res.json({ code : '0', first : user[0].first, last : user[0].last, id : user[0].id });
 						});
 					})
 				})
@@ -64,7 +64,7 @@ const handleRegister = (req, res, db, bcrypt) => {
 				.catch(trx.rollback)
 			})
 			/* Return 400 if failed */
-			.catch(err => res.status(400).json(err));	
+			.catch(err => res.status(400).json({ code : '5' }));	
 		}
 	});
 

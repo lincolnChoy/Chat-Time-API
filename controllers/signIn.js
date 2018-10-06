@@ -4,7 +4,7 @@ const handleSignIn = (req, res, db, bcrypt) => {
 	const { email, pw } = req.body;
 
 	if (!(email && pw)) {
-		return res.json(400).json('NOT_COMPLETE');
+		return res.status(400).json({ code : '3'});
 	}
 
  	/* Grab hash from login table of requested login email */
@@ -25,29 +25,29 @@ const handleSignIn = (req, res, db, bcrypt) => {
 					.where('email','=',email)
 					.then(user => {
 						if (data[0]) {
-							return res.send(JSON.stringify({ code: 'SIGN_IN_SUCCESS', first : user[0].first, last : user[0].last, id : user[0].id }));
+							return res.send({ code: '0', first : user[0].first, last : user[0].last, id : user[0].id });
 						}
 					})
 					.catch(err => {
-						return res.send('FETCH_FAILED');
+						return res.status(500).json({ code : '5' });
 					})
 				})
 
 			}
 			/* On password mismatch, send the error code to the front-end */
 			else {
-				return res.send(JSON.stringify({ code : 'WRONG_CRED' }));
+				return res.send(JSON.stringify({ code : '1' }));
 			}
 		}
 		/* If email does not exist */
 		else {
-			return res.send(JSON.stringify({ code : 'WRONG_CRED' }));
+			return res.send(JSON.stringify({ code : '2' }));
 		}
 
 	})
 	/* On db failure, send error code */
 	.catch(err => {
-		return res.send(JSON.stringify({ code : 'SIGN_IN_FAILED' }));
+		return res.send(JSON.stringify({ code : '5' }));
 	})
 
 

@@ -2,8 +2,9 @@ const handleGetProfile = (req, res, db, bcrypt) => {
 
 
 	const isInteger = Number.isInteger(parseInt(req.query.user));
+	/* Make sure parameter is valid */
 	if (!isInteger) {
-		return res.status(400).json('INVALID_PARAMS');
+		return res.status(400).send(JSON.stringify({ code: '4'}))
 	}
 	/* Identify user from query string */
 	const id = req.query.user;
@@ -14,11 +15,11 @@ const handleGetProfile = (req, res, db, bcrypt) => {
 	.then(user => {
 
 		if (user === "") {
-			return res.status(404).send('PROFILE_FAIL');
+			return res.status(404).send({ code: '2'});
 		}
 		else {
 			return res.status(200).json({ 
-				code : 'PROFILE_FETCHED',
+				code : '0',
 				id : user[0].id, 
 				occupation : user[0].occupation, 
 				picture : user[0].picture, 
@@ -51,26 +52,26 @@ const handleSaveProfile = (req, res, db, bcrypt) => {
 			if (isValid) {
 
 				updateProfile(db, req).then(resp => {
-					return res.send(JSON.stringify({ code: 'PROFILE_SAVED'}));
+					return res.send(JSON.stringify({ code: '0'}));
 				})
 				.catch(err => {
-					return res.send('UPDATE_FAILED');
+					return res.send(JSON.stringify({ code: '5'}));
 				})
 			}
 			/* On password mismatch, send the error code to the front-end */
 			else {
-				return res.send(JSON.stringify({ code : 'WRONG_CRED' }));
+				return res.send(JSON.stringify({ code : '1' }));
 			}
 		}
-		/* If email does not exist */
+		/* If use does not exist */
 		else {
-			return res.send(JSON.stringify({ code : 'WRONG_CRED' }));
+			return res.send(JSON.stringify({ code : '2' }));
 		}
 
 	})
 	/* On db failure, send error code */
 	.catch(err => {
-		return res.send(JSON.stringify({ code : 'PROFILE_NOT_SAVED' }));
+		return res.send(JSON.stringify({ code : '5' }));
 	})
 
 }
