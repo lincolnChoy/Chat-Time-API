@@ -8,6 +8,7 @@ const signIn = require('./controllers/signIn');
 const register = require('./controllers/register');
 const users = require('./controllers/users');
 const profiles = require('./controllers/profiles');
+const messaging = require('./controllers/messaging');
 
 /* Set up database using knex module */
 const db = knex({
@@ -39,6 +40,8 @@ app.post('/getList', (req,res) => { users.handleGetList(req, res, db, bcrypt)});
 app.get('/getProfile', (req, res) => { profiles.handleGetProfile(req, res, db, bcrypt)});
 
 app.post('/saveProfile', (req,res) => { profiles.handleSaveProfile(req, res, db, bcrypt)});
+
+app.post('/sendMessage', (req,res) => { messaging.handleSendMessage(req, res, db, bcrypt)});
 
 
 app.listen(process.env.PORT || 3000, () => {

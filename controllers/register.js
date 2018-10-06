@@ -54,7 +54,7 @@ const handleRegister = (req, res, db, bcrypt) => {
 						})
 						/* On successful API call, return the user object to the front-end */
 						.then(user => {
-							return res.json({ code : '0', first : user[0].first, last : user[0].last, id : user[0].id });
+							return res.status(200).json({ code : '0', first : user[0].first, last : user[0].last, id : user[0].id });
 						});
 					})
 				})
@@ -67,10 +67,6 @@ const handleRegister = (req, res, db, bcrypt) => {
 			.catch(err => res.status(400).json({ code : '5' }));	
 		}
 	});
-
-
-	
-
 }
 
 
