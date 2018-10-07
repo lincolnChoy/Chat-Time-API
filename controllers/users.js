@@ -61,11 +61,13 @@ const getUsers = async (db, id) => {
 		/* User must be online within last 5 minutes */
 		if ((timeNow - ((60*5) * 1000)) <= parseInt(users[i].lastseen)) {
 			const user = await db.select('*').from('usersct').where('id','=', users[i].id);
+			const picture = await db.select('picture').from('profilect').where('id','=', users[i].id);
 			userInfo = {
 				first : user[0].first,
 				last : user[0].last,
 				id : user[0].id,
-				lastSeen : users[i].lastseen
+				lastSeen : users[i].lastseen,
+				picture : picture[0].picture
 			}
 			onlineUsers.push(userInfo);
 		}
@@ -86,12 +88,14 @@ const getAllUsers = async (db, id) => {
 
 	for (var i =0;i<users.length;i++) {
 		const user = await db.select('*').from('usersct').where('id','=', users[i].id);
+		const picture = await db.select('picture').from('profilect').where('id','=', users[i].id);
 		userInfo = {
-				first : user[0].first,
-				last : user[0].last,
-				id : user[0].id,
-				lastSeen : users[i].lastseen
-			}
+			first : user[0].first,
+			last : user[0].last,
+			id : user[0].id,
+			lastSeen : users[i].lastseen,
+			picture : picture[0].picture
+		}
 		onlineUsers.push(userInfo);
 	}
 	

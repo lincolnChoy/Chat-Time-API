@@ -28,8 +28,8 @@ app.use(cors());
 app.use(express.static(__dirname + '/profile_pic/'));
 
 /* Body parser to parse json */
-app.use(bodyParser.json({limit: '50mb'}));
-app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
+app.use(bodyParser.json({limit: '10mb'}));
+app.use(bodyParser.urlencoded({limit: '10mb', extended: true}));
 
 
 /* API routes */

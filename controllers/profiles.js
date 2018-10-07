@@ -80,19 +80,20 @@ const handleSaveProfile = (req, res, db, bcrypt) => {
 
 const updateProfile = async (db, req) => {
 
-	const { id, birthday, location, occupation, blurb, picture } = req.body;
-	console.log('id is ' +id);
 
+	const { id, birthday, location, occupation, blurb, picture } = req.body;
+
+	/* If picture was passed as an argument */
 	if (picture) {
+
+		/* Strip data type */
 		var base64Data = picture.split(',')[1];
 
 		require('fs').writeFileSync('./profile_pic/' + id.toString() + '.jpg', base64Data, 'base64', function(err) {
-			console.log('It didnt work');
+			console.log(err);
 		});
-		var fs = require('fs');
  
 	}
-		
 		
 	const updated = await db('profilect')
 					.update({ 

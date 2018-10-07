@@ -42,17 +42,18 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 					.into('messagesct')
 					.returning('*')
 					.then(id => {
-						return trx('messagebufferct')
-						.returning('*')
-						.insert({
-							sender : sender,
-							destination : destination,
-							message : message,
-							timestamp : timeStamp
-						})
-						.then(message => {
-							return res.status(200).json({ code : '0' });
-						})
+						return res.status(200).json({ code : '0' });
+						// return trx('messagebufferct')
+						// .returning('*')
+						// .insert({
+						// 	sender : sender,
+						// 	destination : destination,
+						// 	message : message,
+						// 	timestamp : timeStamp
+						// })
+						// .then(message => {
+						// 	return res.status(200).json({ code : '0' });
+						// })
 					})
 					/* Commit changes */
 					.then(trx.commit)

@@ -24,9 +24,12 @@ const handleSignIn = (req, res, db, bcrypt) => {
 					db.select('*').from('usersct')
 					.where('email','=',email)
 					.then(user => {
-						if (data[0]) {
-							return res.send({ code: '0', first : user[0].first, last : user[0].last, id : user[0].id });
-						}
+						getPicture(db, user[0].id)
+						.then(picture => {
+							if (data[0]) {
+								return res.send({ code: '0', first : user[0].first, last : user[0].last, id : user[0].id, picture : picture });
+							}	
+						})
 					})
 					.catch(err => {
 						return res.status(500).json({ code : '5' });
@@ -51,6 +54,12 @@ const handleSignIn = (req, res, db, bcrypt) => {
 	})
 
 
+}
+
+const getPicture = async(db, id) => {
+
+	const picture = await db.select('picture').from('profilect').where('id','=',id);
+	return picture[0].picture;
 }
 
 
