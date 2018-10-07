@@ -1,4 +1,6 @@
-var fs = require('fs');
+const cloudinary = require('cloudinary');
+
+
 
 const handleGetProfile = (req, res, db, bcrypt) => {
 
@@ -86,25 +88,44 @@ const updateProfile = async (db, req) => {
 	/* If picture was passed as an argument */
 	if (picture) {
 
-		/* Strip data type */
-		var base64Data = picture.split(',')[1];
+		const url = await uploadImage(picture);
 
-		require('fs').writeFileSync('./profile_pic/' + id.toString() + '.jpg', base64Data, 'base64', function(err) {
-			console.log(err);
-		});
- 
+		const updated = await db('profilect') 
+		.update({ 
+			birthday : birthday,
+			location : location,
+			occupation : occupation,
+			blurb : blurb,
+			picture : url
+		}).where('id','=',id);
+		console.log('updated db');
+
 	}
+	else {
+
 		
-	const updated = await db('profilect')
-					.update({ 
-						birthday : birthday,
-						location : location,
-						occupation : occupation,
-						blurb : blurb,
-						picture : (id.toString() + '.jpg')
+		const updated = await db('profilect')
+						.update({ 
+							birthday : birthday,
+							location : location,
+							occupation : occupation,
+							blurb : blurb
+						}).where('id','=',id);
+	}
 
-					}).where('id','=',id);
+}
 
+const uploadImage = async(picture) => {
+
+	cloudinary.config({ 
+		cloud_name: process.env.CLOUD_NAME, 
+		api_key: process.env.API_KEY, 
+		api_secret: process.env.API_SECRET
+	})
+
+	const result = await cloudinary.v2.uploader.upload(picture);
+
+	return result.secure_url;
 }
 
 

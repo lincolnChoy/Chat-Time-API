@@ -4,11 +4,13 @@ const knex = require('knex');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
+
 const signIn = require('./controllers/signIn');
 const register = require('./controllers/register');
 const users = require('./controllers/users');
 const profiles = require('./controllers/profiles');
 const messaging = require('./controllers/messaging');
+
 
 
 /* Set up database using knex module */
@@ -20,6 +22,7 @@ const db = knex({
 
 	}
 });
+
 
 const app = express();
 app.use(cors());
