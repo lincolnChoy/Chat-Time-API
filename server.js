@@ -10,21 +10,26 @@ const users = require('./controllers/users');
 const profiles = require('./controllers/profiles');
 const messaging = require('./controllers/messaging');
 
+
 /* Set up database using knex module */
 const db = knex({
 	client : 'pg',
 	connection : {
-		connectionString : process.env.DATABASE_URL,
-		ssl : true,
-
-	}
+		host : '127.0.0.1',
+		user : 'postgres',
+		password : '',
+		database : 'chat_time',
+	}	
 });
 
 const app = express();
 app.use(cors());
 
+app.use(express.static(__dirname + '/profile_pic/'));
+
 /* Body parser to parse json */
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
 
 /* API routes */

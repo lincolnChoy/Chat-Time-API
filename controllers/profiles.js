@@ -1,3 +1,5 @@
+var fs = require('fs');
+
 const handleGetProfile = (req, res, db, bcrypt) => {
 
 
@@ -78,14 +80,28 @@ const handleSaveProfile = (req, res, db, bcrypt) => {
 
 const updateProfile = async (db, req) => {
 
-	const { id, birthday, location, occupation, blurb } = req.body;
+	const { id, birthday, location, occupation, blurb, picture } = req.body;
+	console.log('id is ' +id);
 
+	if (picture) {
+		var base64Data = picture.split(',')[1];
+
+		require('fs').writeFileSync('./profile_pic/' + id.toString() + '.jpg', base64Data, 'base64', function(err) {
+			console.log('It didnt work');
+		});
+		var fs = require('fs');
+ 
+	}
+		
+		
 	const updated = await db('profilect')
 					.update({ 
 						birthday : birthday,
 						location : location,
 						occupation : occupation,
-						blurb : blurb
+						blurb : blurb,
+						picture : (id.toString() + '.jpg')
+
 					}).where('id','=',id);
 
 }
