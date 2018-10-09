@@ -19,7 +19,7 @@ const db = knex({
 	connection : {
 		host : '127.0.0.1',
 		user : 'postgres',
-		password : '',
+		password : 'denpai',
 		database : 'chat_time',
 	}	
 });
@@ -55,3 +55,13 @@ app.post('/getMessages', (req,res) => { messaging.handleGetMessages(req, res, db
 app.listen(process.env.PORT || 3000, () => {
 	console.log('Server started');
 });
+
+/*
+0: success
+1: wrong credentials
+2: user does not exist
+3: missing arguments
+4: invalid parameters
+5: database error
+6: existing email
+*/

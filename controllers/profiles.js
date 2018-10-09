@@ -39,7 +39,7 @@ const handleGetProfile = (req, res, db, bcrypt) => {
 const handleSaveProfile = (req, res, db, bcrypt) => {
 
 	/* Identify user from request body */
-	const { id, pw}  = req.body;
+	const { id, pw }  = req.body;
 
 	/* Grab hash from login table of requested login email */
 	db.select('hash').from('loginct')
@@ -56,26 +56,27 @@ const handleSaveProfile = (req, res, db, bcrypt) => {
 			if (isValid) {
 
 				updateProfile(db, req).then(resp => {
-					return res.send(JSON.stringify({ code: '0'}));
+					return res.json({ code: '0' });
 				})
 				.catch(err => {
-					return res.send(JSON.stringify({ code: '5'}));
+					return res.json({ code : '5' });
 				})
+
 			}
 			/* On password mismatch, send the error code to the front-end */
 			else {
-				return res.send(JSON.stringify({ code : '1' }));
+				return res.json({ code : '1' });
 			}
 		}
 		/* If use does not exist */
 		else {
-			return res.send(JSON.stringify({ code : '2' }));
+			return res.json({ code : '2' });
 		}
 
 	})
 	/* On db failure, send error code */
 	.catch(err => {
-		return res.send(JSON.stringify({ code : '5' }));
+		return res.json({ code : '5' });
 	})
 
 }
@@ -83,7 +84,29 @@ const handleSaveProfile = (req, res, db, bcrypt) => {
 const updateProfile = async (db, req) => {
 
 
-	const { id, birthday, location, occupation, blurb, picture } = req.body;
+	let { id, birthday, location, occupation, blurb, picture } = req.body;
+
+	/* Get already existed data from user */
+	db.select('*').from('profilect')
+		.where('id', '=', id)
+		.then(check => {
+			if (!birthday) {
+				console.log(check[0]);
+				birthday = check[0].birthday;
+			}
+			if (!location) {
+				location = check[0].location;
+			}
+			if (!occupation) {
+				occupation = check[0].occupation;
+			}	
+			if (!blurb) {
+				blurb = check[0].blurb;
+			}	
+		})
+		.catch(err => {
+			console.log('wrong', err);
+		})
 
 	/* If picture was passed as an argument */
 	if (picture) {
@@ -101,8 +124,6 @@ const updateProfile = async (db, req) => {
 
 	}
 	else {
-
-		
 		const updated = await db('profilect')
 						.update({ 
 							birthday : birthday,
