@@ -1,3 +1,5 @@
+var isBase64 = require('is-base64');
+
 const handleSendMessage = (req, res, db, bcrypt) => {
 
 	/* Get body of request */
@@ -11,6 +13,34 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 		return res.status(400).json({ code : '3' });
 	}
 
+	/* Set fileCode to default 10 i.e normal message */
+	let fileCode = 10;
+
+	/* Check if message is base64 encoded */
+	let is64encoded = isBase64(message);
+	if (is64encoded) {
+		let dataType = message.split(':');
+		let mimeType = dataType[1].split(';');
+		mimeType = mimeType[0];
+		/*
+			fileCode: normal message 10, jpeg: 0, png: 1, mp3: 2, mp4: 3
+		*/
+		console.log('Type: ', mimeType);
+		if (mimeType === 'image/jpeg') {
+			fileCode = 0;
+		}
+		else if (mimeType === 'image/png') {
+			fileCode = 1;
+		}
+		else if (mimeType === 'audio/mpeg') {
+			fileCode = 2;
+		}
+		else if (mimeType === 'video/mp4') {
+			fileCode = 3;
+		}
+	}
+	
+	console.log(fileCode);
 	/* Grab hash from login table of requested id */
 	db.select('hash').from('loginct')
 	.where('id','=', sender)
@@ -37,7 +67,8 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 						sender : sender,
 						destination : destination,
 						message : message,
-						timestamp : timeStamp
+						timestamp : timeStamp,
+						filecode: fileCode
 					})
 					.into('messagesct')
 					.returning('*')
