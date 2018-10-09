@@ -82,6 +82,7 @@ const handleGetMessages = (req, res, db, bcrypt) => {
 	const { pw, message } = req.body;
 
 	var { sender, destination } = req.body;
+
 	sender = parseInt(sender);
 	destination = parseInt(destination);
 
