@@ -16,15 +16,11 @@ const messaging = require('./controllers/messaging');
 /* Set up database using knex module */
 const db = knex({
 	client : 'pg',
-	const db = knex({
-	client : 'pg',
 	connection : {
 		connectionString : process.env.DATABASE_URL,
 		ssl : true,
 
 	}
-});
-	
 });
 
 const app = express();

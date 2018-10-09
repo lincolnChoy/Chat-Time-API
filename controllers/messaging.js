@@ -1,4 +1,59 @@
-var isBase64 = require('is-base64');
+const isBase64 = require('is-base64');
+const base64Convert = require('./profiles');
+
+const insertData = async (db, req, mes, fc) => {
+	var { sender, destination } = req.body;
+	sender = parseInt(sender);
+	destination = parseInt(destination);
+	var messageInput;
+	if (fc != 10) {
+		messageInput = await getUrl(mes);
+	} else {
+		messageInput = mes;
+	}
+	console.log(messageInput);
+	/* Transaction for consistency */
+	const assign = await db.transaction(trx => {
+
+		const timeStamp = (new Date).getTime();
+
+		/* First insert into primary message table */
+		trx.insert({
+			sender : sender,
+			destination : destination,
+			message : messageInput,
+			timestamp : timeStamp,
+			filecode: fc
+		})
+			.into('messagesct')
+			.returning('*')
+			.then(id => {
+			// return trx('messagebufferct')
+			// .returning('*')
+			// .insert({
+			// 	sender : sender,
+			// 	destination : destination,
+			// 	message : message,
+			// 	timestamp : timeStamp
+			// })
+			// .then(message => {
+			// 	return res.status(200).json({ code : '0' });
+			// })
+			})
+			/* Commit changes */
+			.then(trx.commit)
+			/* Delete transaction if failed anywhere */
+			.catch(trx.rollback)
+	})
+	/* Return 400 if failed */
+	.catch(err => {
+		console.log('error: 5');
+	});
+}
+
+const getUrl = async (mes) => {
+	return await base64Convert.uploadImage(mes);
+}
 
 const handleSendMessage = (req, res, db, bcrypt) => {
 
@@ -14,8 +69,8 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 	}
 
 	/* Set fileCode to default 10 i.e normal message */
-	let fileCode = 10;
-
+	var fileCode = 10;
+	var url = '';
 	/* Check if message is base64 encoded */
 	let is64encoded = isBase64(message);
 	if (is64encoded) {
@@ -39,13 +94,11 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 			fileCode = 3;
 		}
 	}
-	
-	console.log(fileCode);
+
 	/* Grab hash from login table of requested id */
 	db.select('hash').from('loginct')
 	.where('id','=', sender)
 	.then(user => {
-
 		/* Make sure that this user exists */
 		if (user != "") {
 
@@ -53,46 +106,10 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 			const isValid = bcrypt.compareSync(pw,user[0].hash);
 
 			if (isValid) {
-
-				/* Message timestamp */
-				const timeStamp = ((new Date).getTime()).toString();
-
-				/* Transaction for consistency */
-				db.transaction(trx => {
-
-					const timeStamp = (new Date).getTime();
-					
-					/* First insert into primary message table */
-					trx.insert({
-						sender : sender,
-						destination : destination,
-						message : message,
-						timestamp : timeStamp,
-						filecode: fileCode
-					})
-					.into('messagesct')
-					.returning('*')
-					.then(id => {
+				insertData(db, req, message, fileCode)
+					.then(resp => {
 						return res.status(200).json({ code : '0' });
-						// return trx('messagebufferct')
-						// .returning('*')
-						// .insert({
-						// 	sender : sender,
-						// 	destination : destination,
-						// 	message : message,
-						// 	timestamp : timeStamp
-						// })
-						// .then(message => {
-						// 	return res.status(200).json({ code : '0' });
-						// })
-					})
-					/* Commit changes */
-					.then(trx.commit)
-					/* Delete transaction if failed anywhere */
-					.catch(trx.rollback)
-				})
-				/* Return 400 if failed */
-				.catch(err => res.status(400).json({ code : '5' }));	
+					})	
 			}
 			/* If pw is wrong */
 			else {
