@@ -1,6 +1,6 @@
 const cloudinary = require('cloudinary');
-
-
+/* Change this line */
+const cloudConfig = require('../server');
 
 const handleGetProfile = (req, res, db, bcrypt) => {
 
@@ -137,11 +137,7 @@ const updateProfile = async (db, req) => {
 
 const uploadImage = async(picture) => {
 
-	cloudinary.config({ 
-	cloud_name: process.env.CLOUD_NAME, 
-	api_key: process.env.API_KEY, 
-	api_secret: process.env.API_SECRET
-})
+	cloudConfig.config();
 
 	const result = await cloudinary.v2.uploader.upload(picture);
 

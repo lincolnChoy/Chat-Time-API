@@ -2,16 +2,20 @@ const isBase64 = require('is-base64');
 const base64Convert = require('./profiles');
 
 const insertData = async (db, req, mes, fc) => {
+
 	var { sender, destination } = req.body;
+
 	sender = parseInt(sender);
 	destination = parseInt(destination);
+
 	var messageInput;
+	
 	if (fc != 10) {
 		messageInput = await getUrl(mes);
 	} else {
 		messageInput = mes;
 	}
-	console.log(messageInput);
+
 	/* Transaction for consistency */
 	const assign = await db.transaction(trx => {
 
@@ -47,7 +51,7 @@ const insertData = async (db, req, mes, fc) => {
 	})
 	/* Return 400 if failed */
 	.catch(err => {
-		console.log('error: 5');
+		res.status(400).json({ code : '5' });
 	});
 }
 
@@ -77,10 +81,13 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 		let dataType = message.split(':');
 		let mimeType = dataType[1].split(';');
 		mimeType = mimeType[0];
-		/*
-			fileCode: normal message 10, jpeg: 0, png: 1, mp3: 2, mp4: 3
-		*/
-		console.log('Type: ', mimeType);
+		/* fileCode: 
+			normal message 10, 
+			jpeg: 0, 
+			png: 1, 
+			mp3: 2,
+			mp4: 3 */
+
 		if (mimeType === 'image/jpeg') {
 			fileCode = 0;
 		}

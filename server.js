@@ -12,6 +12,13 @@ const profiles = require('./controllers/profiles');
 const messaging = require('./controllers/messaging');
 
 
+const config = () => {
+	cloudinary.config({ 
+		cloud_name: process.env.CLOUD_NAME, 
+		api_key: process.env.API_KEY, 
+		api_secret: process.env.API_SECRET
+	})
+}
 
 /* Set up database using knex module */
 const db = knex({
@@ -25,8 +32,6 @@ const db = knex({
 
 const app = express();
 app.use(cors());
-
-app.use(express.static(__dirname + '/profile_pic/'));
 
 /* Body parser to parse json */
 app.use(bodyParser.json({limit: '10mb'}));
@@ -54,6 +59,11 @@ app.post('/getMessages', (req,res) => { messaging.handleGetMessages(req, res, db
 app.listen(process.env.PORT || 3000, () => {
 	console.log('Server started');
 });
+
+
+module.exports = {
+	config : config
+}
 
 /*
 0: success

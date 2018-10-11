@@ -3,6 +3,7 @@
 
 .netlify
 
+serverLocal.js
 # dependencies
 /node_modules
 
