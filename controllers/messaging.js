@@ -76,8 +76,8 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 	var fileCode = 10;
 	var url = '';
 	/* Check if message is base64 encoded */
-	//let is64encoded = isBase64(message);
-	//if (is64encoded) {
+	let is64encoded = isBase64(message);
+	if (is64encoded) {
 
 		let dataType = message.split(':');
 		let mimeType = dataType[1].split(';');
@@ -101,7 +101,7 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 		else if (mimeType === 'video/mp4') {
 			fileCode = 3;
 		}
-	//}
+	}
 
 	/* Grab hash from login table of requested id */
 	db.select('hash').from('loginct')
