@@ -17,11 +17,10 @@ const messaging = require('./controllers/messaging');
 const db = knex({
 	client : 'pg',
 	connection : {
-		host : '127.0.0.1',
-		user : 'postgres',
-		password : 'denpai',
-		database : 'chat_time',
-	}	
+		connectionString : process.env.DATABASE_URL,
+		ssl : true,
+
+	}
 });
 
 const app = express();

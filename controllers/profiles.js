@@ -84,7 +84,7 @@ const handleSaveProfile = (req, res, db, bcrypt) => {
 const updateProfile = async (db, req) => {
 
 
-	let { id, birthday, location, occupation, blurb, picture } = req.body;
+	const { id, birthday, location, occupation, blurb, picture } = req.body;
 
 	/* Get already existed data from user */
 	db.select('*').from('profilect')
@@ -112,7 +112,7 @@ const updateProfile = async (db, req) => {
 	if (picture) {
 
 		const url = await uploadImage(picture);
-
+		
 		const updated = await db('profilect') 
 		.update({ 
 			birthday : birthday,
@@ -138,10 +138,10 @@ const updateProfile = async (db, req) => {
 const uploadImage = async(picture) => {
 
 	cloudinary.config({ 
-		cloud_name: 'dv7e36bfu', 
-		api_key: '313464432566752', 
-		api_secret: 'A4n4q7z9wkDjhNNEVkAfJE6nDmY'
-	})
+	cloud_name: process.env.CLOUD_NAME, 
+	api_key: process.env.API_KEY, 
+	api_secret: process.env.API_SECRET
+})
 
 	const result = await cloudinary.v2.uploader.upload(picture);
 
@@ -151,5 +151,6 @@ const uploadImage = async(picture) => {
 
 module.exports = {
 	handleGetProfile : handleGetProfile,
-	handleSaveProfile : handleSaveProfile
+	handleSaveProfile : handleSaveProfile,
+	uploadImage : uploadImage
 }
