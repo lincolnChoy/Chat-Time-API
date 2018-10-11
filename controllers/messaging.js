@@ -75,11 +75,22 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 	/* Set fileCode to default 10 i.e normal message */
 	var fileCode = 10;
 	var url = '';
-	/* Check if message is base64 encoded */
-	var base64regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
 
-	let is64encoded = base64regex.test(message);  
-	//let is64encoded = isBase64(message);
+	var index = message.indexOf(",");
+	var b64String = message.substring(index + 1);
+
+	/* Check if message is base64 encoded */
+	let is64encoded;
+	if (message.length < 1000) {
+		
+		var base64regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
+		is64encoded = base64regex.test(b64String);
+	}
+	else {
+		is64encoded = true;
+	}
+
+	/* Hacky method */
 	if (is64encoded) {
 
 		let dataType = message.split(':');
