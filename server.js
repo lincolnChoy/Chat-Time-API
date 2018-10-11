@@ -52,11 +52,6 @@ app.listen(process.env.PORT || 3000, () => {
 	console.log('Server started');
 });
 
-
-module.exports = {
-	config : config
-}
-
 /*
 0: success
 1: wrong credentials
