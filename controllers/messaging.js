@@ -78,6 +78,7 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 	/* Check if message is base64 encoded */
 	let is64encoded = isBase64(message);
 	if (is64encoded) {
+
 		let dataType = message.split(':');
 		let mimeType = dataType[1].split(';');
 		mimeType = mimeType[0];

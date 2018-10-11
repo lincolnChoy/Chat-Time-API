@@ -12,14 +12,6 @@ const profiles = require('./controllers/profiles');
 const messaging = require('./controllers/messaging');
 
 
-const config = () => {
-	cloudinary.config({ 
-		cloud_name: process.env.CLOUD_NAME, 
-		api_key: process.env.API_KEY, 
-		api_secret: process.env.API_SECRET
-	})
-}
-
 /* Set up database using knex module */
 const db = knex({
 	client : 'pg',

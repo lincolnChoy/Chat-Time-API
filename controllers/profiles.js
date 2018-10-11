@@ -1,6 +1,6 @@
 const cloudinary = require('cloudinary');
 /* Change this line */
-const cloudConfig = require('../server');
+const cloudConfig = require('../config');
 
 const handleGetProfile = (req, res, db, bcrypt) => {
 
