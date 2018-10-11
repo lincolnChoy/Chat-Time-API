@@ -139,7 +139,7 @@ const uploadImage = async(picture) => {
 
 	cloudConfig.config();
 
-	const result = await cloudinary.v2.uploader.upload(picture);
+	const result = await cloudinary.v2.uploader.upload(picture, { resource_type: 'raw' });
 
 	return result.secure_url;
 }
