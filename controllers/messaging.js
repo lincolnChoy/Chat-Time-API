@@ -76,7 +76,10 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 	var fileCode = 10;
 	var url = '';
 	/* Check if message is base64 encoded */
-	let is64encoded = isBase64(message);
+	var base64regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
+
+	let is64encoded = base64regex.test(message);  
+	//let is64encoded = isBase64(message);
 	if (is64encoded) {
 
 		let dataType = message.split(':');
