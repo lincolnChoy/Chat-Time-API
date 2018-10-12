@@ -76,11 +76,10 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 	var fileCode = 10;
 	var url = '';
 
-	var index = message.indexOf(",");
-	var b64String = message.substring(index + 1);
-
 	/* Check if message is base64 encoded */
 	let is64encoded;
+	/* Hacky method - assume lengths above 1000 are base64, comes with assumption that
+		front-end will not send more than 100 characters max (per message) */
 	if (message.length < 1000) {
 		
 		var base64regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
@@ -90,7 +89,8 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 		is64encoded = true;
 	}
 
-	/* Hacky method */
+	/* If string is base64, determine the file type, 
+		this value will be stored alongside the link in the database. */
 	if (is64encoded) {
 
 		let dataType = message.split(':');
