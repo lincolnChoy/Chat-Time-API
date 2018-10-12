@@ -61,6 +61,7 @@ const getUsers = async (db, id) => {
 		/* User must be online within last 5 minutes */
 		if ((timeNow - ((60*5) * 1000)) <= parseInt(users[i].lastseen)) {
 			const user = await db.select('*').from('usersct').where('id','=', users[i].id);
+			const lastSeen = await updateLastSeen(db, id);
 			const picture = await db.select('picture').from('profilect').where('id','=', users[i].id);
 			userInfo = {
 				first : user[0].first,
@@ -100,6 +101,14 @@ const getAllUsers = async (db, id) => {
 	}
 	
 	return onlineUsers;
+
+}
+
+const updateLastSeen = async (db, id) => {
+
+	const timeNow = (new Date).getTime().toString();
+
+	const updated = await db('loginct').update({ lastseen : timeNow }).where('id','=',id);
 
 }
 

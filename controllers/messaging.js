@@ -60,9 +60,8 @@ const getUrl = async (mes) => {
 }
 
 const handleSendMessage = (req, res, db, bcrypt) => {
-
 	/* Get body of request */
-	const { pw, message } = req.body;
+	const { pw, message, isFile } = req.body;
 
 	var { sender, destination } = req.body;
 	sender = parseInt(sender);
@@ -78,17 +77,20 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 
 	/* Check if message is base64 encoded */
 	let is64encoded;
-	var index = message.indexOf(",");
-	var b64String = message.substring(index + 1);
+
 	/* Hacky method - assume lengths above 1000 are base64, comes with assumption that
 		front-end will not send more than 100 characters max (per message) */
-	if (message.length < 1000) {
-		
-		var base64regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
-		is64encoded = base64regex.test(b64String);
+	if (isFile) {
+		//var index = message.indexOf(",");
+		//var b64String = message.substring(index + 1);
+		//var base64regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
+
+		//is64encoded = base64regex.test(b64String);
+		//is64encoded = isBase64(message);
+		is64encoded = true;
 	}
 	else {
-		is64encoded = true;
+		is64encoded = false;
 	}
 
 	/* If string is base64, determine the file type, 
