@@ -78,6 +78,8 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 
 	/* Check if message is base64 encoded */
 	let is64encoded;
+	var index = message.indexOf(",");
+	var b64String = message.substring(index + 1);
 	/* Hacky method - assume lengths above 1000 are base64, comes with assumption that
 		front-end will not send more than 100 characters max (per message) */
 	if (message.length < 1000) {
