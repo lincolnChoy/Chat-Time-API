@@ -2,6 +2,7 @@
 
 
 .netlify
+.env
 
 serverLocal.js
 # dependencies

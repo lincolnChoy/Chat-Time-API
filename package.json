@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "local" : "nodemon serverLocal.js"
+    "local": "nodemon serverLocal.js"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +19,7 @@
     "body-parser": "^1.18.3",
     "cloudinary": "^1.11.0",
     "cors": "^2.8.4",
+    "dotenv": "^6.1.0",
     "express": "^4.16.3",
     "is-base64": "0.0.6",
     "knex": "^0.15.2",
