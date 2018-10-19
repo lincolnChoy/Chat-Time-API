@@ -10,6 +10,7 @@ const register = require('./controllers/register');
 const users = require('./controllers/users');
 const profiles = require('./controllers/profiles');
 const messaging = require('./controllers/messaging');
+const group = require('./controllers/group');
 
 
 /* Set up database using knex module */

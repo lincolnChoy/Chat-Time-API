@@ -95,8 +95,9 @@ const getGroups = async(db, id) => {
 		const group = await db.select('*').from('groupct').where('id', '=', groups[i].id);
 		/* Only display groups that the user is in */
 		var j = 0;
-		while (j != group[0].members.length) {
-			if (id == group[0].members[j]) {
+		var groupMember = group[0].members.split(',');
+		while (j != groupMember.length) {
+			if (id == groupMember[j]) {
 				groupInfo = {
 					id: group[0].id,
 					members: group[0].members
