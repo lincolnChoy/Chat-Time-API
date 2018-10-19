@@ -19,12 +19,19 @@ const handleGetList = (req, res, db, bcrypt) => {
 			
 			/* On hash match, return all the online users */
 			if (isValid) {
-
+				let onlineUsers;
 				/* Return the users who have been online */
 				getUsers(db, id)
 				.then(onlineUsers => {
-					return res.status(200).json({ code: '0', users : onlineUsers });	
+					onlineUsers = onlineUsers;
+					/* Return all existing groups */
+					getGroups(db, id).then(groups => {
+						return res.status(200).json({ code: '0', users : onlineUsers, groups : groups });
+					})
+					//return res.status(200).json({ code: '0', users : onlineUsers });	
 				});
+
+
 
 			}
 			/* On password mismatch, send the error code to the front-end */
@@ -74,6 +81,33 @@ const getUsers = async (db, id) => {
 		}
 	} 
 	return onlineUsers;
+
+}
+
+const getGroups = async(db, id) => {
+
+	let allGroups = [];
+
+	/* Get all groups from the database and return them */
+	const groups = await db.select('*').from('groupct');
+
+	for (var i = 0; i < groups.length; i++) {
+		const group = await db.select('*').from('groupct').where('id', '=', groups[i].id);
+		/* Only display groups that the user is in */
+		var j = 0;
+		while (j != group[0].members.length) {
+			if (id == group[0].members[j]) {
+				groupInfo = {
+					id: group[0].id,
+					members: group[0].members
+				}
+				allGroups.push(groupInfo);
+				break;
+			}
+			j++;
+		}
+	}
+	return allGroups;
 
 }
 

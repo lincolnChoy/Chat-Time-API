@@ -3,7 +3,7 @@ const base64Convert = require('./profiles');
 
 const insertData = async (db, req, mes, fc) => {
 
-	var { sender, destination } = req.body;
+	var { sender, destination, isGroup } = req.body;
 
 	sender = parseInt(sender);
 	destination = parseInt(destination);
@@ -17,42 +17,83 @@ const insertData = async (db, req, mes, fc) => {
 	}
 
 	/* Transaction for consistency */
-	const assign = await db.transaction(trx => {
+	if (!isGroup) {
+		const assign = await db.transaction(trx => {
 
-		const timeStamp = (new Date).getTime();
+			const timeStamp = (new Date).getTime();
 
-		/* First insert into primary message table */
-		trx.insert({
-			sender : sender,
-			destination : destination,
-			message : messageInput,
-			timestamp : timeStamp,
-			filecode: fc
-		})
-			.into('messagesct')
-			.returning('*')
-			.then(id => {
-			// return trx('messagebufferct')
-			// .returning('*')
-			// .insert({
-			// 	sender : sender,
-			// 	destination : destination,
-			// 	message : message,
-			// 	timestamp : timeStamp
-			// })
-			// .then(message => {
-			// 	return res.status(200).json({ code : '0' });
-			// })
+			/* First insert into primary message table */
+			trx.insert({
+				sender : sender,
+				destination : destination,
+				message : messageInput,
+				timestamp : timeStamp,
+				filecode: fc
 			})
-			/* Commit changes */
-			.then(trx.commit)
-			/* Delete transaction if failed anywhere */
-			.catch(trx.rollback)
-	})
-	/* Return 400 if failed */
-	.catch(err => {
-		res.status(400).json({ code : '5' });
-	});
+				.into('messagesct')
+				.returning('*')
+				.then(id => {
+				// return trx('messagebufferct')
+				// .returning('*')
+				// .insert({
+				// 	sender : sender,
+				// 	destination : destination,
+				// 	message : message,
+				// 	timestamp : timeStamp
+				// })
+				// .then(message => {
+				// 	return res.status(200).json({ code : '0' });
+				// })
+				})
+				/* Commit changes */
+				.then(trx.commit)
+				/* Delete transaction if failed anywhere */
+				.catch(trx.rollback)
+		})
+		/* Return 400 if failed */
+		.catch(err => {
+			res.status(400).json({ code : '5' });
+		});
+	} else {
+		const assign = await db.transaction(trx => {
+
+			const timeStamp = (new Date).getTime();
+
+			/* First insert into primary message table */
+			trx.insert({
+				id: destination,
+				sender : sender,
+				message : messageInput,
+				timestamp : timeStamp,
+				filecode: fc
+			})
+				.into('groupmessagesct')
+				.returning('*')
+				.then(id => {
+				// return trx('messagebufferct')
+				// .returning('*')
+				// .insert({
+				// 	sender : sender,
+				// 	destination : destination,
+				// 	message : message,
+				// 	timestamp : timeStamp
+				// })
+				// .then(message => {
+				// 	return res.status(200).json({ code : '0' });
+				// })
+				})
+				/* Commit changes */
+				.then(trx.commit)
+				/* Delete transaction if failed anywhere */
+				.catch(trx.rollback)
+		})
+		/* Return 400 if failed */
+		.catch(err => {
+			res.status(400).json({ code : '5' });
+		});
+	}
+
+
 }
 
 const getUrl = async (mes) => {
@@ -61,15 +102,17 @@ const getUrl = async (mes) => {
 
 const handleSendMessage = (req, res, db, bcrypt) => {
 	/* Get body of request */
-	const { pw, message, isFile } = req.body;
+	const { pw, message, isFile, isGroup } = req.body;
 
 	var { sender, destination } = req.body;
 	sender = parseInt(sender);
 	destination = parseInt(destination);
 
+
 	if (!sender || !pw || !destination || !message) {
 		return res.status(400).json({ code : '3' });
 	}
+	 
 
 	/* Set fileCode to default 10 i.e normal message */
 	var fileCode = 10;
@@ -132,10 +175,20 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 			const isValid = bcrypt.compareSync(pw,user[0].hash);
 
 			if (isValid) {
+				/* Make sure that this group exists */
+				if (isGroup) {
+					db.select('id').from('groupct')
+					.where('id', '=', destination)
+					.then(group => {
+						if (group == "") {
+							return res.status(200).json({ code : '2' });
+						}
+					})
+				}
 				insertData(db, req, message, fileCode)
-					.then(resp => {
-						return res.status(200).json({ code : '0' });
-					})	
+				.then(resp => {
+					return res.status(200).json({ code : '0' });
+				})	
 			}
 			/* If pw is wrong */
 			else {
@@ -153,16 +206,18 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 const handleGetMessages = (req, res, db, bcrypt) => {
 
 	/* Get body of request */
-	const { pw, message } = req.body;
+	const { pw, message, isGroup } = req.body;
 
 	var { sender, destination } = req.body;
 
 	sender = parseInt(sender);
 	destination = parseInt(destination);
 
+
 	if (!sender || !pw || !destination) {
 		return res.status(400).json({ code : '3' });
 	}
+
 
 	/* Grab hash from login table of requested id */
 	db.select('hash').from('loginct')
@@ -176,16 +231,51 @@ const handleGetMessages = (req, res, db, bcrypt) => {
 			const isValid = bcrypt.compareSync(pw,user[0].hash);
 
 			if (isValid) {
-				db.select('*')
-				.from('messagesct')
-				.where(function() {
-					this.where('sender', sender).andWhere('destination', destination)
-				}).orWhere(function() {
-					this.where('sender', destination).andWhere('destination', sender)
-				})
-				.then(messages => {
-					return res.status(200).json({ code : '0' , messages : messages });
-				})
+				if (!isGroup){
+					db.select('*')
+					.from('messagesct')
+					.where(function() {
+						this.where('sender', sender).andWhere('destination', destination)
+					}).orWhere(function() {
+						this.where('sender', destination).andWhere('destination', sender)
+					})
+					.then(messages => {
+						return res.status(200).json({ code : '0' , messages : messages });
+					})
+				}
+				else {
+
+					db.select('members').from('groupct')
+					.where('id', '=', destination)
+					.then(members => {
+						
+						/* Make sure only group members can see their messages in the group */
+						var members = members[0].members;
+						var groupMember = members.split(',');
+						var i = 0;
+						var exist = false;
+						while (groupMember.length != i) {
+							if (sender == groupMember[i]) {
+								exist = true;
+								break;
+							}
+							i++;
+						}
+
+						if (!exist) {
+							return res.status(400).json({ code : '2' });
+						} else {
+							db.select('*').from('groupmessagesct')
+							.where('id', '=', destination)
+							.then(messages => {
+								return res.status(200).json({ code : '0' , messages : messages });
+							})
+						}
+
+					})
+
+					
+				}
 			}
 			/* If pw is wrong */
 			else {
