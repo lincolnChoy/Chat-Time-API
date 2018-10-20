@@ -1,2 +1,2 @@
-# Chat-Time-API
-Express server which hosts the API's for the Chat-Time website 
+# Chime-API
+Express server which hosts the API's for the Chime website 
