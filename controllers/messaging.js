@@ -1,5 +1,6 @@
 const isBase64 = require('is-base64');
-const base64Convert = require('./profiles');
+const cloudinary = require('cloudinary');
+const cloudConfig = require('../config');
 
 const insertData = async (db, req, mes, fc) => {
 
@@ -11,7 +12,7 @@ const insertData = async (db, req, mes, fc) => {
 	var messageInput;
 	
 	if (fc != 10) {
-		messageInput = await getUrl(mes);
+		messageInput = await getUrl(mes, fc);
 	} else {
 		messageInput = mes;
 	}
@@ -96,8 +97,25 @@ const insertData = async (db, req, mes, fc) => {
 
 }
 
-const getUrl = async (mes) => {
-	return await base64Convert.uploadImage(mes);
+const getUrl = async (b64String, type) => {
+
+	cloudConfig.config();
+
+	let result;
+
+	/* Evaluate type and upload */
+	if (type === 0 || type === 1) {
+		result = await cloudinary.v2.uploader.upload(b64String, { resource_type: 'image', quality: 'auto:low' });
+	}
+	else if (type === 2 || type === 3) {
+		result = await cloudinary.v2.uploader.upload(b64String, { resource_type: 'video', quality: 'auto:low' });
+	}
+	else {
+		result = await cloudinary.v2.uploader.upload(b64String, { resource_type: 'raw', quality: 'auto:low' });
+	}
+
+	return result.secure_url;
+
 }
 
 const handleSendMessage = (req, res, db, bcrypt) => {
@@ -118,27 +136,9 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 	var fileCode = 10;
 	var url = '';
 
-	/* Check if message is base64 encoded */
-	let is64encoded;
-
-	/* Hacky method - assume lengths above 1000 are base64, comes with assumption that
-		front-end will not send more than 100 characters max (per message) */
-	if (isFile) {
-		//var index = message.indexOf(",");
-		//var b64String = message.substring(index + 1);
-		//var base64regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
-
-		//is64encoded = base64regex.test(b64String);
-		//is64encoded = isBase64(message);
-		is64encoded = true;
-	}
-	else {
-		is64encoded = false;
-	}
-
 	/* If string is base64, determine the file type, 
 		this value will be stored alongside the link in the database. */
-	if (is64encoded) {
+	if (isFile) {
 
 		let dataType = message.split(':');
 		let mimeType = dataType[1].split(';');
