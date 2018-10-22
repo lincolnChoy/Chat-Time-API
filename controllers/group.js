@@ -8,9 +8,8 @@ const handleCreateGroup = (req, res, db, bcrypt) => {
 	var { members } = req.body;
 	members = members.join();
 
-	var founder = parseInt(id);
+	const founder = parseInt(id);
 	if (!founder || !pw || !members) {
-		console.log(members)
 		return res.status(400).json({ code : '3' });
 	}
 

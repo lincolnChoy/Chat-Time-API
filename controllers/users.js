@@ -86,21 +86,37 @@ const getUsers = async (db, id) => {
 
 const getGroups = async(db, id) => {
 
-	let allGroups = [];
+	const allGroups = [];
 
 	/* Get all groups from the database and return them */
 	const groups = await db.select('*').from('groupct');
 
 	for (var i = 0; i < groups.length; i++) {
+
 		const group = await db.select('*').from('groupct').where('id', '=', groups[i].id);
+
 		/* Only display groups that the user is in */
 		var j = 0;
 		var groupMember = group[0].members.split(',');
 		while (j != groupMember.length) {
 			if (id == groupMember[j]) {
+				
+				const profiles = [];
+				/* Get profile of everyone in the group */
+				for (var k = 0; k < groupMember.length; k++) {
+					let member = groupMember[k];
+					try {
+						const memberProfile = await db.select('*').from('profilect').where('id', '=', member);
+						profiles.push(memberProfile[0]);
+					}
+					catch (err) {
+						console.log(err);
+					}
+				}
+				/* Return the group */
 				groupInfo = {
 					id: group[0].id,
-					members: group[0].members
+					members: profiles
 				}
 				allGroups.push(groupInfo);
 				break;
