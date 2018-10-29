@@ -1,5 +1,5 @@
-
 const nodemailer = require('nodemailer'); 
+
 const handleRegister = (req, res, db, bcrypt) => {
 
 

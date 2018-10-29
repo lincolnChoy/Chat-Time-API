@@ -1,3 +1,5 @@
+
+
 const handleSignIn = (req, res, db, bcrypt) => {
 	
 	/* Destructure request body */
@@ -65,9 +67,11 @@ const getPicture = async(db, id) => {
 
 const updateLastSeen = async (db, email) => {
 
-	const timeNow = (new Date).getTime().toString();
+	if (email != 'test') {
+		const timeNow = (new Date).getTime().toString();
+		const updated = await db('loginct').update({ lastseen : timeNow }).where('email','=',email);
+	}
 
-	const updated = await db('loginct').update({ lastseen : timeNow }).where('email','=',email);
 
 }
 

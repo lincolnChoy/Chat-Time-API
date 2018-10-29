@@ -157,9 +157,10 @@ const getAllUsers = async (db, id) => {
 
 const updateLastSeen = async (db, id) => {
 
-	const timeNow = (new Date).getTime().toString();
-
-	const updated = await db('loginct').update({ lastseen : timeNow }).where('id','=',id);
+	if (id != 47) {
+		const timeNow = (new Date).getTime().toString();
+		const updated = await db('loginct').update({ lastseen : timeNow }).where('id','=',id);
+	}
 
 }
 
