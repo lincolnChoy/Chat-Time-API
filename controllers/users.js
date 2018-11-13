@@ -66,19 +66,19 @@ const getUsers = async (db, id) => {
 
 	for (var i =0;i<users.length;i++) {
 		/* User must be online within last 5 minutes */
-		if ((timeNow - ((60*5) * 1000)) <= parseInt(users[i].lastseen)) {
-			const user = await db.select('*').from('usersct').where('id','=', users[i].id);
-			const lastSeen = await updateLastSeen(db, id);
-			const picture = await db.select('picture').from('profilect').where('id','=', users[i].id);
-			userInfo = {
-				first : user[0].first,
-				last : user[0].last,
-				id : user[0].id,
-				lastSeen : users[i].lastseen,
-				picture : picture[0].picture
-			}
-			onlineUsers.push(userInfo);
+		//if ((timeNow - ((60*5) * 1000)) <= parseInt(users[i].lastseen)) {
+		const user = await db.select('*').from('usersct').where('id','=', users[i].id);
+		const lastSeen = await updateLastSeen(db, id);
+		const picture = await db.select('picture').from('profilect').where('id','=', users[i].id);
+		userInfo = {
+			first : user[0].first,
+			last : user[0].last,
+			id : user[0].id,
+			lastSeen : users[i].lastseen,
+			picture : picture[0].picture
 		}
+		onlineUsers.push(userInfo);
+		//}
 	} 
 	return onlineUsers;
 
@@ -125,33 +125,6 @@ const getGroups = async(db, id) => {
 		}
 	}
 	return allGroups;
-
-}
-
-const getAllUsers = async (db, id) => {
-
-	/* Get time now and return all users who have pinged the server within the last 5 minutes */
-	const timeNow = (new Date).getTime();
-
-	/* Initial array of online users */
-	let onlineUsers = [];
-
-	const users = await db.select('*').from('loginct').where('id','!=',id);
-
-	for (var i =0;i<users.length;i++) {
-		const user = await db.select('*').from('usersct').where('id','=', users[i].id);
-		const picture = await db.select('picture').from('profilect').where('id','=', users[i].id);
-		userInfo = {
-			first : user[0].first,
-			last : user[0].last,
-			id : user[0].id,
-			lastSeen : users[i].lastseen,
-			picture : picture[0].picture
-		}
-		onlineUsers.push(userInfo);
-	}
-	
-	return onlineUsers;
 
 }
 
