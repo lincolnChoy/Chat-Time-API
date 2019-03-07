@@ -10,7 +10,7 @@ const handleCreateGroup = (req, res, db, bcrypt) => {
 
 	const founder = parseInt(id);
 	if (!founder || !pw || !members) {
-		return res.status(400).json({ code : '3' });
+		return res.status(400).json({ code : 3 });
 	}
 
 
@@ -30,22 +30,22 @@ const handleCreateGroup = (req, res, db, bcrypt) => {
 				.into('groupct')
 				.returning('*')
 				.then(id => {
-					return res.status(200).json({ code : '0' });
+					return res.status(200).json({ code : 0 });
 				})
 
 			}
 			else {
-				return res.json({ code : '1' });
+				return res.json({ code : 1 });
 			}
 
 		}
 		else {
-			return res.status(200).json({ code : '2' });
+			return res.status(200).json({ code : 2 });
 		}
 
 	})
 	.catch(err => {
-		return res.status(500).json({ code : '5' });
+		return res.status(500).json({ code : 5 });
 	})
 
 }

@@ -53,7 +53,7 @@ const insertData = async (db, req, mes, fc) => {
 		})
 		/* Return 400 if failed */
 		.catch(err => {
-			res.status(400).json({ code : '5' });
+			res.status(400).json({ code : 5 });
 		});
 	} else {
 		const assign = await db.transaction(trx => {
@@ -90,7 +90,7 @@ const insertData = async (db, req, mes, fc) => {
 		})
 		/* Return 400 if failed */
 		.catch(err => {
-			res.status(400).json({ code : '5' });
+			res.status(400).json({ code : 5 });
 		});
 	}
 
@@ -128,7 +128,7 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 
 
 	if (!sender || !pw || !destination || !message) {
-		return res.status(400).json({ code : '3' });
+		return res.status(400).json({ code : 3 });
 	}
 	 
 
@@ -181,26 +181,26 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 					.where('id', '=', destination)
 					.then(group => {
 						if (group == "") {
-							return res.status(200).json({ code : '2' });
+							return res.status(200).json({ code : 2 });
 						}
 					})
 				}
 				insertData(db, req, message, fileCode)
 				.then(resp => {
-					return res.status(200).json({ code : '0' });
+					return res.status(200).json({ code : 0 });
 				})	
 			}
 			/* If pw is wrong */
 			else {
-				return res.status(200).json({ code : '1' });
+				return res.status(200).json({ code : 1 });
 			}
 		}
 		/* If user not found in table */
 		else {
-			return res.status(200).json({ code : '2' });
+			return res.status(200).json({ code : 2 });
 		}
 	})
-	.catch(err => res.status(500).json({ code : '5' }));
+	.catch(err => res.status(500).json({ code : 5 }));
 }
 
 const handleGetMessages = (req, res, db, bcrypt) => {
@@ -215,7 +215,7 @@ const handleGetMessages = (req, res, db, bcrypt) => {
 
 
 	if (!sender || !pw || !destination) {
-		return res.status(400).json({ code : '3' });
+		return res.status(400).json({ code : 3 });
 	}
 
 
@@ -240,7 +240,7 @@ const handleGetMessages = (req, res, db, bcrypt) => {
 						this.where('sender', destination).andWhere('destination', sender)
 					})
 					.then(messages => {
-						return res.status(200).json({ code : '0' , messages : messages });
+						return res.status(200).json({ code : 0 , messages : messages });
 					})
 				}
 				else {
@@ -263,12 +263,12 @@ const handleGetMessages = (req, res, db, bcrypt) => {
 						}
 
 						if (!exist) {
-							return res.status(400).json({ code : '2' });
+							return res.status(400).json({ code : 2 });
 						} else {
 							db.select('*').from('groupmessagesct')
 							.where('id', '=', destination)
 							.then(messages => {
-								return res.status(200).json({ code : '0' , messages : messages });
+								return res.status(200).json({ code : 0 , messages : messages });
 							})
 						}
 
@@ -279,15 +279,15 @@ const handleGetMessages = (req, res, db, bcrypt) => {
 			}
 			/* If pw is wrong */
 			else {
-				return res.status(200).json({ code : '1' });
+				return res.status(200).json({ code : 1 });
 			}
 		}
 		/* If user not found in table */
 		else {
-			return res.status(400).json({ code : '2' });
+			return res.status(400).json({ code : 2 });
 		}
 	})
-	.catch(err => res.status(500).json({ code : '5' }));
+	.catch(err => res.status(500).json({ code : 5 }));
 
 }
 

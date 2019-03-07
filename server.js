@@ -32,13 +32,13 @@ app.use(bodyParser.urlencoded({limit: '10mb', extended: true}));
 
 
 /* API routes */
-app.get('/', (req,res) => { res.send('Server is up'); });
+app.get('/', (req, res) => { res.send('Server is up'); });
 
-app.post('/register', (req,res) => { register.handleRegister(req, res, db, bcrypt) });
+app.post('/register', (req, res) => { register.handleRegister(req, res, db, bcrypt) });
 
-app.post('/signIn', (req,res) => { signIn.handleSignIn(req, res, db, bcrypt) });
+app.post('/signIn', (req, res) => { signIn.handleSignIn(req, res, db, bcrypt) });
 
-app.post('/getList', (req,res) => { users.handleGetList(req, res, db, bcrypt)});
+app.post('/getList', (req, res) => { users.handleGetList(req, res, db, bcrypt)});
 
 app.get('/getProfile', (req, res) => { profiles.handleGetProfile(req, res, db, bcrypt)});
 

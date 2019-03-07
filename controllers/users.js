@@ -4,13 +4,14 @@ const handleGetList = (req, res, db, bcrypt) => {
 	const { id, pw } = req.body;
 
 	if (!(id && pw)) {
-		return res.status(400).json({ code : '3'});
+		return res.status(200).json({ code : 3});
 	}
-
+	
  	/* Grab hash from login table of requested login email */
 	db.select('hash').from('loginct')
 	.where('id','=', id)
 	.then(data => {
+		console.log('here');
 
 		/* Make sure that this email exists */
 		if (data != "") {
@@ -19,6 +20,7 @@ const handleGetList = (req, res, db, bcrypt) => {
 			
 			/* On hash match, return all the online users */
 			if (isValid) {
+				
 				let onlineUsers;
 				/* Return the users who have been online */
 				getUsers(db, id)
@@ -26,9 +28,8 @@ const handleGetList = (req, res, db, bcrypt) => {
 					onlineUsers = onlineUsers;
 					/* Return all existing groups */
 					getGroups(db, id).then(groups => {
-						return res.status(200).json({ code: '0', users : onlineUsers, groups : groups });
+						return res.status(200).json({ code: 0, users : onlineUsers, groups : groups });
 					})
-					//return res.status(200).json({ code: '0', users : onlineUsers });	
 				});
 
 
@@ -36,18 +37,18 @@ const handleGetList = (req, res, db, bcrypt) => {
 			}
 			/* On password mismatch, send the error code to the front-end */
 			else {
-				return res.status(200).json({ code : '1' });
+				return res.status(200).json({ code : 1 });
 			}
 		}
 		/* If email does not exist */
 		else {
-			return res.status(200).json({ code : '2' });
+			return res.status(200).json({ code : 2 });
 		}
 
 	})
 	/* On db failure, send error code */
 	.catch(err => {
-		return res.status(500).json({ code : '5' });
+		return res.status(200).json({ code : 5 });
 	})
 
 
@@ -66,7 +67,6 @@ const getUsers = async (db, id) => {
 
 	for (var i =0;i<users.length;i++) {
 		/* User must be online within last 5 minutes */
-		//if ((timeNow - ((60*5) * 1000)) <= parseInt(users[i].lastseen)) {
 		const user = await db.select('*').from('usersct').where('id','=', users[i].id);
 		const lastSeen = await updateLastSeen(db, id);
 		const picture = await db.select('picture').from('profilect').where('id','=', users[i].id);
@@ -78,7 +78,6 @@ const getUsers = async (db, id) => {
 			picture : picture[0].picture
 		}
 		onlineUsers.push(userInfo);
-		//}
 	} 
 	return onlineUsers;
 

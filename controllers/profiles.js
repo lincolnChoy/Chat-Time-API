@@ -18,11 +18,11 @@ const handleGetProfile = (req, res, db, bcrypt) => {
 	.then(user => {
 
 		if (user === "") {
-			return res.status(404).send({ code: '2'});
+			return res.status(404).send({ code: 2 });
 		}
 		else {
 			return res.status(200).json({ 
-				code : '0',
+				code : 0,
 				id : user[0].id, 
 				occupation : user[0].occupation, 
 				picture : user[0].picture, 
@@ -55,27 +55,27 @@ const handleSaveProfile = (req, res, db, bcrypt) => {
 			if (isValid) {
 
 				updateProfile(db, req).then(resp => {
-					return res.json({ code: '0' });
+					return res.json({ code: 0 });
 				})
 				.catch(err => {
-					return res.json({ code : '5' });
+					return res.json({ code : 5 });
 				})
 
 			}
 			/* On password mismatch, send the error code to the front-end */
 			else {
-				return res.json({ code : '1' });
+				return res.json({ code : 1 });
 			}
 		}
 		/* If use does not exist */
 		else {
-			return res.json({ code : '2' });
+			return res.json({ code : 2 });
 		}
 
 	})
 	/* On db failure, send error code */
 	.catch(err => {
-		return res.json({ code : '5' });
+		return res.json({ code : 5 });
 	})
 
 }
