@@ -29,7 +29,13 @@ const handleSignIn = (req, res, db, bcrypt) => {
 						getPicture(db, user[0].id)
 						.then(picture => {
 							if (data[0]) {
-								return res.send({ code: 0, first : user[0].first, last : user[0].last, id : user[0].id, picture : picture });
+								return res.send({ code: 0, user : {
+															first : user[0].first, 
+															last : user[0].last, 
+															id : user[0].id, 
+															picture : picture
+														}		 
+								});
 							}	
 						})
 					})

@@ -54,7 +54,13 @@ const handleRegister = (req, res, db, bcrypt) => {
 						})
 						/* On successful API call, return the user object to the front-end */
 						.then(user => {
-							return res.status(200).json({ code : 0, first : user[0].first, last : user[0].last, id : user[0].id, picture : 'anon.jpg' });
+							return res.status(200).json({ code : 0, user: {
+																		first : user[0].first, 
+																		last : user[0].last, 
+																		id : user[0].id, 
+																		picture : 'anon.jpg'
+																	} 
+													});
 						});
 					})
 				})
