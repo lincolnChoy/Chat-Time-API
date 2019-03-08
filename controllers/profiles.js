@@ -21,15 +21,25 @@ const handleGetProfile = (req, res, db, bcrypt) => {
 			return res.status(404).send({ code: 2 });
 		}
 		else {
-			return res.status(200).json({ 
-				code : 0,
+			const userNoName = {
 				id : user[0].id, 
 				occupation : user[0].occupation, 
 				picture : user[0].picture, 
 				blurb : user[0].blurb, 
 				birthday : user[0].birthday, 
 				location : user[0].location
+			}
+			db.select('*')
+			.from('usersct')
+			.where('id', '=', id)
+			.then(data => {
+				let user = Object.assign({}, userNoName, { first: data[0].first, last: data[0].last});
+				return res.status(200).json({ 
+					code: 0,
+					...user
+				})
 			})
+
 		}
 
 	})
