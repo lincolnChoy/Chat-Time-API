@@ -187,7 +187,16 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 				}
 				insertData(db, req, message, fileCode)
 				.then(resp => {
-					return res.status(200).json({ code : 0 });
+					db.select('*')
+					.from('messagesct')
+					.where(function() {
+						this.where('sender', sender).andWhere('destination', destination)
+					}).orWhere(function() {
+						this.where('sender', destination).andWhere('destination', sender)
+					})
+					.then(messages => {
+						return res.status(200).json({ code : 0 , messages : messages });
+					})
 				})	
 			}
 			/* If pw is wrong */
