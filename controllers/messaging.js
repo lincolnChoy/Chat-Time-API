@@ -4,12 +4,12 @@ const cloudConfig = require('../config');
 
 const insertData = async (db, req, mes, fc) => {
 
-	var { sender, destination, isGroup } = req.body;
+	let { sender, destination, isGroup } = req.body;
 
-	sender = parseInt(sender);
-	destination = parseInt(destination);
+	sender = +sender;
+	destination = +destination;
 
-	var messageInput;
+	let messageInput;
 	
 	if (fc != 10) {
 		messageInput = await getUrl(mes, fc);
@@ -19,7 +19,7 @@ const insertData = async (db, req, mes, fc) => {
 
 	/* Transaction for consistency */
 	if (!isGroup) {
-		const assign = await db.transaction(trx => {
+		await db.transaction(trx => {
 
 			const timeStamp = (new Date).getTime();
 
@@ -33,19 +33,6 @@ const insertData = async (db, req, mes, fc) => {
 			})
 				.into('messagesct')
 				.returning('*')
-				.then(id => {
-				// return trx('messagebufferct')
-				// .returning('*')
-				// .insert({
-				// 	sender : sender,
-				// 	destination : destination,
-				// 	message : message,
-				// 	timestamp : timeStamp
-				// })
-				// .then(message => {
-				// 	return res.status(200).json({ code : '0' });
-				// })
-				})
 				/* Commit changes */
 				.then(trx.commit)
 				/* Delete transaction if failed anywhere */
@@ -53,10 +40,12 @@ const insertData = async (db, req, mes, fc) => {
 		})
 		/* Return 400 if failed */
 		.catch(err => {
-			res.status(400).json({ code : 5 });
+			res.json({ code : 5 });
 		});
-	} else {
-		const assign = await db.transaction(trx => {
+	} 
+	else {
+
+		await db.transaction(trx => {
 
 			const timeStamp = (new Date).getTime();
 
@@ -70,19 +59,6 @@ const insertData = async (db, req, mes, fc) => {
 			})
 				.into('groupmessagesct')
 				.returning('*')
-				.then(id => {
-				// return trx('messagebufferct')
-				// .returning('*')
-				// .insert({
-				// 	sender : sender,
-				// 	destination : destination,
-				// 	message : message,
-				// 	timestamp : timeStamp
-				// })
-				// .then(message => {
-				// 	return res.status(200).json({ code : '0' });
-				// })
-				})
 				/* Commit changes */
 				.then(trx.commit)
 				/* Delete transaction if failed anywhere */
@@ -97,7 +73,7 @@ const insertData = async (db, req, mes, fc) => {
 
 }
 
-const getUrl = async (b64String, type) => {
+const getUrl = async(b64String, type) => {
 
 	cloudConfig.config();
 
@@ -119,22 +95,22 @@ const getUrl = async (b64String, type) => {
 }
 
 const handleSendMessage = (req, res, db, bcrypt) => {
+
 	/* Get body of request */
 	const { pw, message, isFile, isGroup } = req.body;
 
-	var { sender, destination } = req.body;
-	sender = parseInt(sender);
-	destination = parseInt(destination);
-
+	let { sender, destination } = req.body;
 
 	if (!sender || !pw || !destination || !message) {
 		return res.status(400).json({ code : 3 });
 	}
-	 
+
+	sender = +sender;
+	destination = +destination;
+
 
 	/* Set fileCode to default 10 i.e normal message */
-	var fileCode = 10;
-	var url = '';
+	let fileCode = 10;
 
 	/* If string is base64, determine the file type, 
 		this value will be stored alongside the link in the database. */
@@ -186,7 +162,7 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 					})
 				}
 				insertData(db, req, message, fileCode)
-				.then(resp => {
+				.then(() => {
 					db.select('*')
 					.from('messagesct')
 					.where(function() {
@@ -212,21 +188,20 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 	.catch(err => res.status(500).json({ code : 5 }));
 }
 
+
 const handleGetMessages = (req, res, db, bcrypt) => {
 
 	/* Get body of request */
-	const { pw, message, isGroup } = req.body;
+	const { pw, isGroup } = req.body;
 
-	var { sender, destination } = req.body;
-
-	sender = parseInt(sender);
-	destination = parseInt(destination);
-
+	let { sender, destination } = req.body;
 
 	if (!sender || !pw || !destination) {
 		return res.status(400).json({ code : 3 });
 	}
 
+	sender = +sender;
+	destination = +destination;
 
 	/* Grab hash from login table of requested id */
 	db.select('hash').from('loginct')
@@ -273,7 +248,8 @@ const handleGetMessages = (req, res, db, bcrypt) => {
 
 						if (!exist) {
 							return res.status(400).json({ code : 2 });
-						} else {
+						} 
+						else {
 							db.select('*').from('groupmessagesct')
 							.where('id', '=', destination)
 							.then(messages => {

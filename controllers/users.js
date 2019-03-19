@@ -11,7 +11,6 @@ const handleGetList = (req, res, db, bcrypt) => {
 	db.select('hash').from('loginct')
 	.where('id','=', id)
 	.then(data => {
-		console.log('here');
 
 		/* Make sure that this email exists */
 		if (data != "") {
@@ -28,7 +27,7 @@ const handleGetList = (req, res, db, bcrypt) => {
 					onlineUsers = onlineUsers;
 					/* Return all existing groups */
 					getGroups(db, id).then(groups => {
-						return res.status(200).json({ code: 0, users : onlineUsers, groups : groups });
+						return res.json({ code: 0, users : onlineUsers, groups : groups });
 					})
 				});
 
@@ -37,27 +36,24 @@ const handleGetList = (req, res, db, bcrypt) => {
 			}
 			/* On password mismatch, send the error code to the front-end */
 			else {
-				return res.status(200).json({ code : 1 });
+				return res.json({ code : 1 });
 			}
 		}
 		/* If email does not exist */
 		else {
-			return res.status(200).json({ code : 2 });
+			return res.json({ code : 2 });
 		}
 
 	})
 	/* On db failure, send error code */
 	.catch(err => {
-		return res.status(200).json({ code : 5 });
+		return res.json({ code : 5 });
 	})
 
 
 }
 
-const getUsers = async (db, id) => {
-
-	/* Get time now and return all users who have pinged the server within the last 5 minutes */
-	const timeNow = (new Date).getTime();
+const getUsers = async(db, id) => {
 
 	/* Initial array of online users */
 	let onlineUsers = [];
@@ -65,11 +61,16 @@ const getUsers = async (db, id) => {
 	/* Get all the users from the database to compare their login times */
 	const users = await db.select('*').from('loginct').where('id','!=',id);
 
-	for (var i =0;i<users.length;i++) {
-		/* User must be online within last 5 minutes */
-		const user = await db.select('*').from('usersct').where('id','=', users[i].id);
-		const lastSeen = await updateLastSeen(db, id);
-		const picture = await db.select('picture').from('profilect').where('id','=', users[i].id);
+	for (var i = 0; i < users.length;i++) {
+
+		const user = await db.select('*')
+							.from('usersct')
+							.where('id','=', users[i].id);
+
+		const picture = await db.select('picture')
+								.from('profilect')
+								.where('id','=', users[i].id);
+		
 		userInfo = {
 			first : user[0].first,
 			last : user[0].last,
@@ -79,6 +80,8 @@ const getUsers = async (db, id) => {
 		}
 		onlineUsers.push(userInfo);
 	} 
+
+	await updateLastSeen(db, id);
 	return onlineUsers;
 
 }
@@ -92,11 +95,13 @@ const getGroups = async(db, id) => {
 
 	for (var i = 0; i < groups.length; i++) {
 
-		const group = await db.select('*').from('groupct').where('id', '=', groups[i].id);
+		const group = await db.select('*')
+							.from('groupct')
+							.where('id', '=', groups[i].id);
 
 		/* Only display groups that the user is in */
-		var j = 0;
-		var groupMember = group[0].members.split(',');
+		let j = 0;
+		let groupMember = group[0].members.split(',');
 		while (j != groupMember.length) {
 			if (id == groupMember[j]) {
 				
@@ -105,7 +110,10 @@ const getGroups = async(db, id) => {
 				for (var k = 0; k < groupMember.length; k++) {
 					let member = groupMember[k];
 					try {
-						const memberProfile = await db.select('*').from('profilect').where('id', '=', member);
+						const memberProfile = await db.select('*')
+													.from('profilect')
+													.where('id', '=', member);
+													
 						profiles.push(memberProfile[0]);
 					}
 					catch (err) {
@@ -127,12 +135,10 @@ const getGroups = async(db, id) => {
 
 }
 
-const updateLastSeen = async (db, id) => {
+const updateLastSeen = async(db, id) => {
 
-	if (id != 47) {
-		const timeNow = (new Date).getTime().toString();
-		const updated = await db('loginct').update({ lastseen : timeNow }).where('id','=',id);
-	}
+	const timeNow = (new Date).getTime().toString();
+	await db('loginct').update({ lastseen : timeNow }).where('id','=',id);
 
 }
 

@@ -1,5 +1,3 @@
-const nodemailer = require('nodemailer'); 
-
 const handleRegister = (req, res, db, bcrypt) => {
 
 
@@ -54,13 +52,14 @@ const handleRegister = (req, res, db, bcrypt) => {
 						})
 						/* On successful API call, return the user object to the front-end */
 						.then(user => {
-							return res.status(200).json({ code : 0, user: {
-																		first : user[0].first, 
-																		last : user[0].last, 
-																		id : user[0].id, 
-																		picture : 'anon.jpg'
-																	} 
-													});
+							return res.status(200).json({ code : 0, 
+															user: {
+																first : user[0].first, 
+																last : user[0].last, 
+																id : user[0].id, 
+																picture : 'anon.jpg'
+															} 
+							});
 						});
 					})
 				})
@@ -69,12 +68,11 @@ const handleRegister = (req, res, db, bcrypt) => {
 				/* Delete transaction if failed anywhere */
 				.catch(trx.rollback)
 			})
-			/* Return 400 if failed */
-			.catch(err => res.status(400).json({ code : 5 }));	
+			/* Return db error code if failed */
+			.catch(err => res.json({ code : 5 }));	
 		}
 	});
 }
-
 
 
 module.exports = {

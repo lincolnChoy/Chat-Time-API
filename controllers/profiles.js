@@ -1,16 +1,18 @@
 const cloudinary = require('cloudinary');
 const cloudConfig = require('../config');
 
-const handleGetProfile = (req, res, db, bcrypt) => {
+const handleGetProfile = (req, res, db) => {
 
 
 	const isInteger = Number.isInteger(parseInt(req.query.user));
+	
 	/* Make sure parameter is valid */
 	if (!isInteger) {
-		return res.status(400).send(JSON.stringify({ code: '4'}))
+		return res.status(400).json({ code: 4});
 	}
+
 	/* Identify user from query string */
-	const id = req.query.user;
+	const id = +req.query.user;
 	
 	db.select('*')
 	.from('profilect')
@@ -18,7 +20,7 @@ const handleGetProfile = (req, res, db, bcrypt) => {
 	.then(user => {
 
 		if (user === "") {
-			return res.status(404).send({ code: 2 });
+			return res.json({ code : 2 });
 		}
 		else {
 			const userNoName = {
@@ -33,10 +35,10 @@ const handleGetProfile = (req, res, db, bcrypt) => {
 			.from('usersct')
 			.where('id', '=', id)
 			.then(data => {
-				let user = Object.assign({}, userNoName, { first: data[0].first, last: data[0].last});
+				let userWithName = Object.assign({}, userNoName, { first: data[0].first, last: data[0].last});
 				return res.status(200).json({ 
 					code: 0,
-					...user
+					...userWithName
 				})
 			})
 
@@ -45,6 +47,7 @@ const handleGetProfile = (req, res, db, bcrypt) => {
 	})
 }
 
+
 const handleSaveProfile = (req, res, db, bcrypt) => {
 
 	/* Identify user from request body */
@@ -52,7 +55,7 @@ const handleSaveProfile = (req, res, db, bcrypt) => {
 
 	/* Grab hash from login table of requested login email */
 	db.select('hash').from('loginct')
-	.where('id','=', id)
+	.where('id','=', +id)
 	.then(data => {
 
 		/* Make sure that this user exists */
@@ -64,10 +67,20 @@ const handleSaveProfile = (req, res, db, bcrypt) => {
 			/* On hash match, return the user object from user table */
 			if (isValid) {
 
-				updateProfile(db, req).then(resp => {
-					return res.json({ code: 0 });
+				updateProfile(db, req).then((profile) => {
+					if (profile) {
+						return res.json({ code: 0, profile: {
+							...profile
+						}});
+					}
+					else {
+						return res.json({ code: 5 });
+					}
+					
 				})
 				.catch(err => {
+
+					console.log(err);
 					return res.json({ code : 5 });
 				})
 
@@ -85,62 +98,74 @@ const handleSaveProfile = (req, res, db, bcrypt) => {
 	})
 	/* On db failure, send error code */
 	.catch(err => {
+		console.log(err);
 		return res.json({ code : 5 });
 	})
 
 }
 
-const updateProfile = async (db, req) => {
+const updateProfile = (db, req) => {
 
+	return new Promise((resolve, reject) => {
 
-	const { id, birthday, location, occupation, blurb, picture } = req.body;
+		let { id, birthday, location, occupation, blurb, picture } = req.body;
 
-	/* Get already existed data from user */
-	db.select('*').from('profilect')
+		let pictureUrl = '';
+
+		/* Get existing data from user */
+		db.select('*').from('profilect')
 		.where('id', '=', id)
-		.then(check => {
-			if (!birthday) {
-				console.log(check[0]);
-				birthday = check[0].birthday;
+		.then(existingData => {
+
+			birthday = !birthday ? existingData[0].birthday : birthday;
+			location = !location ? existingData[0].location : location;
+			occupation = !occupation ? existingData[0].occupation : occupation;
+			blurb = !blurb ? existingData[0].blurb : blurb;
+			pictureUrl = !picture ? existingData[0].picture : picture;
+
+		})
+		.then(() => {
+			/* If picture was passed as an argument */
+			if (picture) {
+		
+				uploadImage(picture).then((url) => {
+					pictureUrl = url;
+					db('profilect') 
+					.update({ 
+						birthday : birthday,
+						location : location,
+						occupation : occupation,
+						blurb : blurb,
+						picture : pictureUrl
+					}).where('id','=',id)
+					.returning('*')
+					.then((profile) => {
+						resolve(profile[0]);
+					});
+				});
 			}
-			if (!location) {
-				location = check[0].location;
+			else {
+				db('profilect') 
+				.update({ 
+					birthday : birthday,
+					location : location,
+					occupation : occupation,
+					blurb : blurb,
+					picture : pictureUrl
+				}).where('id','=',id)
+				.returning('*')
+				.then((profile) => {
+					resolve(profile[0]);
+				});
 			}
-			if (!occupation) {
-				occupation = check[0].occupation;
-			}	
-			if (!blurb) {
-				blurb = check[0].blurb;
-			}	
 		})
 		.catch(err => {
-			console.log('wrong', err);
+			console.log(err);
+			reject(err);
 		})
+	
 
-	/* If picture was passed as an argument */
-	if (picture) {
-
-		const url = await uploadImage(picture);
-		
-		const updated = await db('profilect') 
-		.update({ 
-			birthday : birthday,
-			location : location,
-			occupation : occupation,
-			blurb : blurb,
-			picture : url
-		}).where('id','=',id);
-
-	}
-	else {
-		const updated = await db('profilect')
-						.update({ 
-							birthday : birthday,
-							location : location,
-							occupation : occupation,
-							blurb : blurb
-						}).where('id','=',id);
-	}
+	})
 
 }
 
