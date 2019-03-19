@@ -5,6 +5,8 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const dotenv = require('dotenv');
 
+const dbHandler = require('./database');
+
 const signIn = require('./controllers/signIn');
 const register = require('./controllers/register');
 const users = require('./controllers/users');
@@ -40,6 +42,12 @@ const db = knex({
 // 		database : 'chat_time',
 // 	} 
 // });
+
+dbHandler.setUpDB(db).then(
+	(complete) => {
+		console.log('All tables set up');
+	}
+);
 
 const app = express();
 app.use(cors());
