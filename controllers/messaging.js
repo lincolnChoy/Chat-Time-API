@@ -22,7 +22,6 @@ const insertData = async (db, req, mes, fc) => {
 		await db.transaction(trx => {
 
 			const timeStamp = (new Date).getTime();
-
 			/* First insert into primary message table */
 			trx.insert({
 				sender : sender,
@@ -31,16 +30,16 @@ const insertData = async (db, req, mes, fc) => {
 				timestamp : timeStamp,
 				filecode: fc
 			})
-				.into('messagesct')
-				.returning('*')
-				/* Commit changes */
-				.then(trx.commit)
-				/* Delete transaction if failed anywhere */
-				.catch(trx.rollback)
+			.into('messagesct')
+			.returning('*')
+			/* Commit changes */
+			.then(trx.commit)
+			/* Delete transaction if failed anywhere */
+			.catch(trx.rollback)
 		})
 		/* Return 400 if failed */
 		.catch(err => {
-			res.json({ code : 5 });
+			console.log(err);
 		});
 	} 
 	else {
@@ -98,13 +97,12 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 
 	/* Get body of request */
 	const { pw, message, isFile, isGroup } = req.body;
-
 	let { sender, destination } = req.body;
 
 	if (!sender || !pw || !destination || !message) {
 		return res.status(400).json({ code : 3 });
 	}
-
+	
 	sender = +sender;
 	destination = +destination;
 

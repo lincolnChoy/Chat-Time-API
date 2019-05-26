@@ -145,7 +145,7 @@ const setUpMessages = (db) => {
                         table.integer('sender');
                         table.integer('destination');
                         table.string('message');
-                        table.integer('timestamp');
+                        table.bigInteger('timestamp');
                         table.integer('filecode');
 					})
 					.then(
@@ -203,7 +203,7 @@ const setUpGroupMessages = (db) => {
                         table.integer('id');
                         table.integer('sender');
                         table.string('message');
-                        table.integer('timestamp');
+                        table.bigInteger('timestamp');
                         table.integer('filecode');
 					})
 					.then(
