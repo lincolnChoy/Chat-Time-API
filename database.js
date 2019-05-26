@@ -141,6 +141,7 @@ const setUpMessages = (db) => {
 			(userTableExists) => {
 				if (!userTableExists) {
 					db.schema.createTable('messagesct', function (table) {
+						table.increments('messageID');
                         table.integer('sender');
                         table.integer('destination');
                         table.string('message');
@@ -193,11 +194,12 @@ const setUpGroups = (db) => {
 const setUpGroupMessages = (db) => {
 
 	return new Promise((resolve, reject) => {
-		db.schema.hasTable('messagesct')
+		db.schema.hasTable('groupmessagesct')
 		.then(
 			(userTableExists) => {
 				if (!userTableExists) {
-					db.schema.createTable('messagesct', function (table) {
+					db.schema.createTable('groupmessagesct', function (table) {
+						table.increments('messageID');
                         table.integer('id');
                         table.integer('sender');
                         table.string('message');
