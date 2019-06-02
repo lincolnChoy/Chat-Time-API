@@ -2,7 +2,7 @@ const isBase64 = require('is-base64');
 const cloudinary = require('cloudinary');
 const cloudConfig = require('../config');
 
-const insertData = async (db, req, mes, fc) => {
+const insertData = async (db, req, res, mes, fc) => {
 
 	let { sender, destination, isGroup } = req.body;
 
@@ -39,7 +39,7 @@ const insertData = async (db, req, mes, fc) => {
 		})
 		/* Return 400 if failed */
 		.catch(err => {
-			console.log(err);
+			return res.json({code : 5 });
 		});
 	} 
 	else {
@@ -65,7 +65,7 @@ const insertData = async (db, req, mes, fc) => {
 		})
 		/* Return 400 if failed */
 		.catch(err => {
-			res.status(400).json({ code : 5 });
+			return res.json({code : 5 });
 		});
 	}
 
@@ -159,18 +159,9 @@ const handleSendMessage = (req, res, db, bcrypt) => {
 						}
 					})
 				}
-				insertData(db, req, message, fileCode)
+				insertData(db, req, res, message, fileCode)
 				.then(() => {
-					db.select('*')
-					.from('messagesct')
-					.where(function() {
-						this.where('sender', sender).andWhere('destination', destination)
-					}).orWhere(function() {
-						this.where('sender', destination).andWhere('destination', sender)
-					})
-					.then(messages => {
-						return res.status(200).json({ code : 0 , messages : messages });
-					})
+					return res.status(200).json({ code : 0 });
 				})	
 			}
 			/* If pw is wrong */

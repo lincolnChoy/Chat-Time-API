@@ -19,7 +19,7 @@ const handleGetProfile = (req, res, db) => {
 	.where('id','=',id)
 	.then(user => {
 
-		if (user === "") {
+		if (user.length === 0) {
 			return res.json({ code : 2 });
 		}
 		else {
