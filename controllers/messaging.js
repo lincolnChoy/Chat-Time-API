@@ -212,6 +212,7 @@ const handleGetMessages = (req, res, db, bcrypt) => {
 					}).orWhere(function() {
 						this.where('sender', destination).andWhere('destination', sender)
 					})
+					.orderBy('timestamp')
 					.then(messages => {
 						return res.status(200).json({ code : 0 , messages : messages });
 					})
