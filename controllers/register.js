@@ -40,7 +40,8 @@ const handleRegister = (req, res, db, bcrypt) => {
 					return trx('profilect')
 					.returning('*')
 					.insert({
-						id : id[0]
+						id : id[0],
+						picture: 'https://i.imgur.com/FSgbIi4.png'
 					})
 					.then(user => {
 						return trx('usersct')
@@ -57,7 +58,7 @@ const handleRegister = (req, res, db, bcrypt) => {
 																first : user[0].first, 
 																last : user[0].last, 
 																id : user[0].id, 
-																picture : 'anon.jpg'
+																picture : 'https://i.imgur.com/FSgbIi4.png'
 															} 
 							});
 						});
