@@ -69,9 +69,7 @@ const handleSaveProfile = (req, res, db, bcrypt) => {
 
 				updateProfile(db, req).then((profile) => {
 					if (profile) {
-						return res.json({ code: 0, profile: {
-							...profile
-						}});
+						return res.json({ code: 0, ...profile});
 					}
 					else {
 						return res.json({ code: 5 });
@@ -94,7 +92,6 @@ const handleSaveProfile = (req, res, db, bcrypt) => {
 		else {
 			return res.json({ code : 2 });
 		}
-
 	})
 	/* On db failure, send error code */
 	.catch(err => {
