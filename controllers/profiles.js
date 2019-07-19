@@ -38,7 +38,9 @@ const handleGetProfile = (req, res, db) => {
 				let userWithName = Object.assign({}, userNoName, { first: data[0].first, last: data[0].last});
 				return res.status(200).json({ 
 					code: 0,
-					...userWithName
+					profile: {
+						...userWithName
+					}
 				})
 			})
 
@@ -69,7 +71,7 @@ const handleSaveProfile = (req, res, db, bcrypt) => {
 
 				updateProfile(db, req).then((profile) => {
 					if (profile) {
-						return res.json({ code: 0, ...profile});
+						return res.json({ code: 0, profile : { ...profile }});
 					}
 					else {
 						return res.json({ code: 5 });
