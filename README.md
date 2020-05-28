@@ -1,2 +1,3 @@
 # Chime-API
-Express server which hosts the API's for the Chime website 
+~Express server which hosts the API's for the Chime website~    
+## DEPRECATED
